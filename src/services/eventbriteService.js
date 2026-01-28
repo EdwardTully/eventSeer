@@ -53,17 +53,27 @@ export const fetchEvents = async (lat, lng, startDate, endDate, apiKey) => {
  */
 export const parseEvent = (event) => {
   const venue = event._embedded?.venues?.[0];
+  const images = event.images || [];
+  const imageUrl = images.find(img => img.ratio === '16_9')?.url || images[0]?.url || null;
+  
+  // Combine date and time for Ticketmaster
+  const startDate = event.dates?.start?.localDate || '';
+  const startTime = event.dates?.start?.localTime || '';
+  const startDateTime = startDate && startTime ? `${startDate}T${startTime}` : startDate;
   
   return {
-    id: event.id,
+    id: `tm-${event.id}`, // Prefix to avoid ID conflicts with other APIs
     name: event.name || 'Untitled Event',
     description: event.info || event.pleaseNote || '',
-    startDate: event.dates?.start?.localDate || '',
+    startDate: startDateTime,
+    startTime: startTime,
     endDate: event.dates?.end?.localDate || event.dates?.start?.localDate || '',
     url: event.url || '',
+    imageUrl: imageUrl,
     isFree: event.priceRanges?.[0]?.min === 0 || false,
     lat: venue?.location?.latitude ? parseFloat(venue.location.latitude) : null,
     lng: venue?.location?.longitude ? parseFloat(venue.location.longitude) : null,
+    source: 'Ticketmaster',
     venue: {
       name: venue?.name || 'Venue TBA',
       address: venue?.address?.line1 

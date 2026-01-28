@@ -7,7 +7,19 @@ A mobile-first web app for travelers to discover local events (flea markets, fes
 ### Prerequisites
 - Node.js (v16 or higher)
 - npm or yarn
-- A Ticketmaster API key (free at [developer.ticketmaster.com](https://developer.ticketmaster.com/))
+- API keys from event providers (see below)
+
+### API Keys Required
+
+The app currently fetches from **both Ticketmaster and SeatGeek** to provide maximum event coverage:
+
+**Ticketmaster:**
+- Go to [https://developer.ticketmaster.com/](https://developer.ticketmaster.com/)
+- Sign up and create an app to get your API key
+
+**SeatGeek:**
+- Go to [https://seatgeek.com/account/develop](https://seatgeek.com/account/develop)
+- Sign up and create an app to get your Client ID
 
 ### Quick Start
 
@@ -22,14 +34,12 @@ cd eventSeer
 npm install
 ```
 
-3. **Get your Ticketmaster API key**
-   - Go to [https://developer.ticketmaster.com/](https://developer.ticketmaster.com/)
-   - Sign up for a free account
-   - Create an app to get your API key
+3. **Get your API keys** (see Prerequisites section above)
 
 4. **Create a `.env` file** in the project root:
 ```
-VITE_TICKETMASTER_API_KEY=your_api_key_here
+VITE_TICKETMASTER_API_KEY=your_ticketmaster_key_here
+VITE_SEATGEEK_CLIENT_ID=your_seatgeek_client_id_here
 ```
 
 5. **Start the development server**
@@ -41,9 +51,27 @@ npm run dev
 
 ### Usage
 - Click anywhere on the map to search for events near that location
-- Use the date selector to filter events by date range
-- Click on event markers to view details
+- Events are fetched from **both Ticketmaster and SeatGeek** for maximum coverage
+- Use the date selector (bottom of screen) to filter events by date range
+- Click on event markers to view details with images
 - Drag to pan, scroll to zoom
+
+### Switching Between Single and Combined API Mode
+
+**By default**, the app fetches from both Ticketmaster and SeatGeek simultaneously.
+
+**To use only one API**, edit [src/App.jsx](src/App.jsx):
+
+```javascript
+// Line 13-14 in App.jsx
+const USE_COMBINED_APIS = false; // Change to false for single API
+const SINGLE_API = 'seatgeek'; // Options: 'ticketmaster', 'seatgeek', 'eventbrite'
+```
+
+This gives you flexibility to:
+- Reduce API calls if you hit rate limits
+- Focus on a specific event source
+- Test individual APIs during development
 
 ---
 
@@ -59,7 +87,7 @@ npm run dev
 
 - **React 19** with Vite for fast development
 - **React-Leaflet** for interactive maps with OpenStreetMap tiles
-- **Ticketmaster Discovery API** for event data
+- **Ticketmaster Discovery API** + **SeatGeek API** for comprehensive event data
 - **Tailwind CSS** for styling
 - **react-leaflet-cluster** for marker clustering
 - **date-fns** for date formatting

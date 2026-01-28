@@ -68,29 +68,43 @@ const EventMap = ({ events, onMapClick, center = [39.8283, -98.5795], zoom = 5 }
                 key={event.id} 
                 position={[event.lat, event.lng]}
               >
-                <Popup closeButton={true}>
-                  <div className="p-2">
-                    <h3 className="font-bold text-lg mb-1">{event.name}</h3>
-                    <p className="text-sm text-gray-600 mb-1">
+                <Popup closeButton={true} maxWidth={240}>
+                  <div style={{ padding: '8px' }}>
+                    {event.imageUrl && (
+                      <img 
+                        src={event.imageUrl} 
+                        alt={event.name}
+                        style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '4px', marginBottom: '6px' }}
+                      />
+                    )}
+                    <h3 style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '4px', lineHeight: '1.3' }}>{event.name}</h3>
+                    <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '4px' }}>
                       {new Date(event.startDate).toLocaleDateString()}
+                      {event.startTime && (
+                        <span style={{ marginLeft: '6px' }}>• {event.startTime}</span>
+                      )}
                     </p>
-                    <p className="text-sm mb-1">{event.venue.name}</p>
-                    <p className="text-xs text-gray-500 mb-2">{event.venue.address}</p>
+                    <p style={{ fontSize: '12px', marginBottom: '2px' }}>{event.venue.name}</p>
+                    <p style={{ fontSize: '11px', color: '#9CA3AF', marginBottom: '6px' }}>{event.venue.address}</p>
                     {event.isFree && (
-                      <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded mb-2">
+                      <span style={{ display: 'inline-block', backgroundColor: '#D1FAE5', color: '#065F46', fontSize: '10px', padding: '2px 8px', borderRadius: '4px', marginBottom: '6px' }}>
                         FREE
                       </span>
                     )}
-                    <br />
                     {event.url && (
-                      <a
-                        href={event.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline text-sm"
-                      >
-                        View Event →
-                      </a>
+                      <>
+                        <br />
+                        <a
+                          href={event.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: '#2563EB', fontSize: '12px', textDecoration: 'none' }}
+                          onMouseOver={(e) => e.target.style.textDecoration = 'underline'}
+                          onMouseOut={(e) => e.target.style.textDecoration = 'none'}
+                        >
+                          View Event →
+                        </a>
+                      </>
                     )}
                   </div>
                 </Popup>

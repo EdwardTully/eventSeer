@@ -2,11 +2,18 @@ import { useState } from 'react';
 import { addDays } from 'date-fns';
 import EventMap from './components/EventMap';
 import DateSelector from './components/DateSelector';
-import { fetchEvents, parseEvent } from './services/eventbriteService';
+import * as ticketmasterService from './services/eventbriteService';
+import * as eventbriteService from './services/eventbriteServiceReal';
+import * as seatgeekService from './services/seatgeekService';
 
-// IMPORTANT: Replace with your Ticketmaster API key
-// Get one at: https://developer.ticketmaster.com/products-and-docs/apis/getting-started/
+// API Keys
 const TICKETMASTER_API_KEY = import.meta.env.VITE_TICKETMASTER_API_KEY || '';
+const EVENTBRITE_API_TOKEN = import.meta.env.VITE_EVENTBRITE_API_TOKEN || '';
+const SEATGEEK_CLIENT_ID = import.meta.env.VITE_SEATGEEK_CLIENT_ID || '';
+
+// Fetch from multiple APIs and combine results
+const USE_COMBINED_APIS = true; // Set to false to use single API mode
+const SINGLE_API = 'seatgeek'; // Used when USE_COMBINED_APIS is false
 
 function App() {
   const [events, setEvents] = useState([]);
@@ -22,18 +29,64 @@ function App() {
     setMapZoom(11); // Zoom in when user clicks
 
     try {
-      const eventData = await fetchEvents(
-        latlng.lat,
-        latlng.lng,
-        startDate,
-        endDate,
-        TICKETMASTER_API_KEY
-      );
-      
-      console.log('Raw event data:', eventData);
-      const parsedEvents = eventData.map(parseEvent).filter(e => e.lat && e.lng);
-      console.log('Parsed events with coords:', parsedEvents);
-      setEvents(parsedEvents);
+      if (USE_COMBINED_APIS) {
+        // Fetch from multiple APIs in parallel
+        console.log('Fetching events from Ticketmaster and SeatGeek...');
+        
+        const [ticketmasterEvents, seatgeekEvents] = await Promise.all([
+          ticketmasterService.fetchEvents(
+            latlng.lat,
+            latlng.lng,
+            startDate,
+            endDate,
+            TICKETMASTER_API_KEY
+          ).catch(err => {
+            console.error('Ticketmaster fetch failed:', err);
+            return [];
+          }),
+          seatgeekService.fetchEvents(
+            latlng.lat,
+            latlng.lng,
+            startDate,
+            endDate,
+            SEATGEEK_CLIENT_ID
+          ).catch(err => {
+            console.error('SeatGeek fetch failed:', err);
+            return [];
+          })
+        ]);
+
+        const allEvents = [...ticketmasterEvents, ...seatgeekEvents];
+        console.log(`Combined results: ${ticketmasterEvents.length} from Ticketmaster, ${seatgeekEvents.length} from SeatGeek`);
+        setEvents(allEvents);
+      } else {
+        // Single API mode (legacy)
+        let service, apiKey;
+        
+        if (SINGLE_API === 'eventbrite') {
+          service = eventbriteService;
+          apiKey = EVENTBRITE_API_TOKEN;
+        } else if (SINGLE_API === 'seatgeek') {
+          service = seatgeekService;
+          apiKey = SEATGEEK_CLIENT_ID;
+        } else {
+          service = ticketmasterService;
+          apiKey = TICKETMASTER_API_KEY;
+        }
+        
+        console.log(`Using ${SINGLE_API} API`);
+        
+        const eventData = await service.fetchEvents(
+          latlng.lat,
+          latlng.lng,
+          startDate,
+          endDate,
+          apiKey
+        );
+        
+        console.log('Raw event data:', eventData);
+        setEvents(eventData);
+      }
     } catch (error) {
       console.error('Error loading events:', error);
     } finally {
