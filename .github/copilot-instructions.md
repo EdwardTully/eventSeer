@@ -23,3 +23,6 @@ React + Vite web app for discovering local events (flea markets, festivals, musi
 1. Get an Eventbrite API key from https://www.eventbrite.com/platform/api
 2. Create a `.env` file with: `VITE_EVENTBRITE_API_KEY=your_key_here`
 3. The app is running at http://localhost:5173
+
+
+look at meetup

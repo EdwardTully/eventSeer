@@ -62,22 +62,14 @@ const EventMap = ({ events, onMapClick, center = [39.8283, -98.5795], zoom = 5 }
           spiderfyOnMaxZoom={true}
           showCoverageOnHover={false}
         >
-          {events.map((event) => {
-            const markerRef = useRef(null);
-            
-            return (
-              event.lat && event.lng && (
+          {events.map((event) => (
+            event.lat && event.lng && (
               <Marker 
                 key={event.id} 
                 position={[event.lat, event.lng]}
-                ref={markerRef}
               >
                 <Popup closeButton={true}>
-                  <div className="p-2 cursor-pointer" onClick={() => {
-                    if (markerRef.current) {
-                      markerRef.current.closePopup();
-                    }
-                  }}>
+                  <div className="p-2">
                     <h3 className="font-bold text-lg mb-1">{event.name}</h3>
                     <p className="text-sm text-gray-600 mb-1">
                       {new Date(event.startDate).toLocaleDateString()}
@@ -103,8 +95,8 @@ const EventMap = ({ events, onMapClick, center = [39.8283, -98.5795], zoom = 5 }
                   </div>
                 </Popup>
               </Marker>
-            ));
-          })}
+            )
+          ))}
         </MarkerClusterGroup>
       )}
     </MapContainer>

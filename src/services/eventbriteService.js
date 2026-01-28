@@ -37,9 +37,9 @@ export const fetchEvents = async (lat, lng, startDate, endDate, apiKey) => {
       },
     });
 
-    console.log('Full Ticketmaster response:', response.data);
+   
     const events = response.data._embedded?.events || [];
-    console.log('Extracted events array:', events);
+   
     return events;
   } catch (error) {
     console.error('Error fetching events:', error);
